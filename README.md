@@ -1,45 +1,43 @@
 # Jah'Podi Pôneis - Predicting Bang Gap
 
-## Introdução
+## Introduction
 
-O "band gap" é uma propriedade que representa a diferença de energia entre o estado de mais energia da banda de valência e o estado de menos energia da banda de condução em um material isolante, ou semicondutor. Esse valor de energia está relacionado a condutividade do material: quanto menor o valor do band gap, maior é a condutividade do mesmo.
+The "band gap" is a property representing the energy difference between the highest energy state in the valence band and the lowest energy state in the conduction band in insulating or semiconductor materials. This energy value is related to the material's conductivity: the smaller the value of the band gap, the higher the conductivity.
 
-O objetivo deste trabalho é utilizar modelos e estratégias de aprendizado de máquina para prever o band gap de materiais de duas formas distintas:
+The objective of this work is to use machine learning models and strategies to predict the band gap of materials in two distinct ways:
 
-1. Utilizando como features apenas a proporção molar dos materiais.
-2. Utilizando como features a proporção molar multiplicada pelos valores de eletronegatividade na escala de Pauling dos átomos que compõem os materiais.
+1. Using only the molar proportion of materials as features.
+2. Using the molar proportion multiplied by the Pauling scale electronegativity values of the atoms composing the materials as features.
 
-Esse trabalho utiliza o dataset `expt_gap` da biblioteca `matminer`, que contém os valores experimentais de band gap de diversos materiais semicondutores, sendo essa a variável que desejamos prever. Para isso, treinamos quatro modelos para cada caso: regressão linear e floresta aleatória apenas com normalização padrão, e regressão linear e floresta aleatória com normalização padrão e redução de dimensionalidade com PCA.
+This work utilizes the `expt_gap` dataset from the `matminer` library, containing experimental band gap values of various semiconductor materials, which is the variable we aim to predict. Four models were trained for each case: linear regression and random forest with standard normalization, and linear regression and random forest with maximum absolute normalization and dimensionality reduction with PCA.
 
-## Descrição Geral do Projeto
+## General Project Description
 
-Inicialmente, queríamos relacionar a fórmula química do material com o seu valor de band gap, uma vez que imaginávamos que os átomos, e a sua proporção, influenciariam nesse valor. Porém, tivémos a ideia de adicionar mais uma informação nessa predição: o valor de eletronegatividade de cada átomo. Essa intuição vem do fato de que átomos mais eletronegativos atraem mais os seus elétrons, e portanto, dificultariam na sua promoção da banda de valência para a banda de condução. Dessa forma, imaginamos que o valor da eletronegatividade dos átomos também influencie na predição do valor do band gap de um material. Para testarmos essa hipótese, criamos dois conjuntos de features: um contendo apenas a proporção molar do material, e outro contendo a proporção molar multiplicado pelo valor de eletronegatividade de cada átomo, e treinamos os mesmos modelos com os dois conjuntos de features, para compararmos os resultados. Existem várias escalas de eletronegatividade diferentes, porém no nosso caso utilizamos a definição de eletronegatividade de Pauling.
+Initially, we aimed to relate the chemical formula of the material to its band gap value, assuming that atoms and their proportion would influence this value. However, we had the idea to add another piece of information to this prediction: the electronegativity value of each atom. This intuition comes from the fact that more electronegative atoms attract their electrons more, thus complicating their promotion from the valence band to the conduction band. Therefore, we hypothesized that the electronegativity values of atoms also influence the prediction of the band gap value of a material. To test this hypothesis, we created two feature sets: one containing only the molar proportion of the material, and another containing the molar proportion multiplied by the electronegativity value of each atom. We trained the same models with both feature sets to compare the results. There are various electronegativity scales, but in our case, we used the Pauling electronegativity definition.
 
-Iniciando o processo de tratamento de dados, realizamos um parsing das fórmulas químicas de cada material, para que pudéssemos extrair a proporção molar de cada material das strings que estavam no dataset `expt_gap`. Para isso, utilizamos a função `Composition`, da biblioteca `pymatgen`, e para adicionar posteriormente os valores de eletronegatividade, utilizamos a biblioteca `mendeleev`.
+Starting the data preprocessing, we parsed the chemical formulas of each material to extract the molar proportion of each material from the strings in the `expt_gap` dataset. We used the `Composition` function from the `pymatgen` library for this purpose and later added the electronegativity values using the `mendeleev` library.
 
-Os modelos selecionados para a predição foram: regressão linear e floresta aleatória. A regressão linear foi escolhida pela hipótese de que talvez houvesse uma relação linear entre os features e o valor de band gap. Já a floresta aleatória foi escolhida por conta de ser um modelo extremamente robusto, por conta de ser formado por diversas árvores de decisão. Talvez o valor de band gap se comporte como regiões mais separadas no espaço dos features, característica que poderia ser captada pelo modelo de floresta aleatória. Em ambos os modelos testamos a redução de dimensionalidade com o PCA, utilizando 90% da variância dos features iniciais.
+The models selected for prediction were: linear regression and random forest. Linear regression was chosen due to the hypothesis that there might be a linear relationship between the features and the band gap value. Random forest was chosen because it is an extremely robust model, being formed by multiple decision trees. Perhaps the band gap value behaves like separated regions in the feature space, a characteristic that could be captured by the random forest model. In both models, we tested dimensionality reduction with PCA, using 90% of the initial features' variance.
 
-Todos os modelos utilizaram os features após uma normalização padrão dos features. As florestas aleatórias foram submetidas à otimização de hiperparâmetros por busca aleatória em um espaço de busca pré-definido, por conta do custo computacional de treinamento desses modelos. Para termos um modelo de base para comparação, treinamos um modelo baseline para cada caso.
+All models used features after maximum absolute normalization. Random forests underwent hyperparameter optimization through random search in a predefined search space due to the computational cost of training these models. To have a baseline model for comparison, we trained a baseline model for each case.
 
-De forma sintética, o notebook `main.ipynb` está estruturado da seguinte forma:
+In summary, the `main.ipynb` notebook is structured as follows:
 
-1. **Importações:** Inicialmente, são importadas as bibliotecas e funções necessárias para o desenvolvimento do trabalho, dentre elas: `matplotlib`, `numpy`, `pymatgen`, `mendeleev`, `matminer` e  `sklearn`.
+1. **Imports:** Initially, the necessary libraries and functions for the project development are imported, including `matplotlib`, `numpy`, `pymatgen`, `mendeleev`, `matminer`, and `sklearn`.
 
-2. **Tratamento do Dataset:** O dataset inicial é carregado, e linhas com valores `NaN` são descartadas. Em seguida, é realizada uma manipulação nos dados para criar colunas que representam a proporção molar dos elementos presentes em cada material. Isso é feito usando a biblioteca `pymatgen`. Posteriormente, são criadas colunas adicionais multiplicando a proporção molar pelo valor da eletronegatividade dos átomos, utilizando dados da biblioteca `mendeleev`.
+2. **Dataset Pre-Processing:** The dataset is transformed for the application of machine learning algorithms.
 
-3. **Divisão em Casos 1 e 2:** O notebook trabalha com dois conjuntos de features para treinar os modelos de machine learning. O "Caso 1" utiliza apenas a proporção molar dos materiais como features, enquanto o "Caso 2" utiliza a proporção molar multiplicada pelo valor de eletronegatividade.
+3. **Case Division:** The notebook works with two feature sets to train the machine learning models. "Case 1" uses only the molar proportion of the materials as features, while "Case 2" uses the molar proportion multiplied by the electronegativity value.
 
-4. **Discussão dos Resultados:** Ao final do notebook, há uma discussão sobre os resultados obtidos, incluindo uma análise do desempenho de cada modelo nos dois casos e uma reavaliação das hipóteses iniciais.
+4. **Results Discussion:** At the end of the notebook, there is a discussion of the results, including an analysis of the performance of each model in both cases and a reassessment of the initial hypotheses.
 
+## Credits
+- The project uses the `expt_gap` dataset available at [Next-Gen Materials Project](https://hackingmaterials.lbl.gov/matminer/dataset_summary.html#expt-gap).
 
-## Créditos
-- O projeto utiliza o dataset `expt_gap`, disponível em ([https://next-gen.materialsproject.org](https://hackingmaterials.lbl.gov/matminer/dataset_summary.html#expt-gap)).
+## Acknowledgments
 
-
-## Agradecimentos
-
-Agradecemos ao professor Daniel Roberto Cassar pela disciplina de Machine Learning. 
+Thanks to Professor Daniel Roberto Cassar for the Machine Learning course.
 
 ## Observations
 
-This was a group project, and this is my edited version. I only translated the notebook to english and changed some minor things. If you're interested in seeing the original project, just check the 
+This was a group project, and this is my edited version. I only translated the notebook to english and changed some minor things. If you're interested in seeing the original project, just check the link int the top of this fork.
