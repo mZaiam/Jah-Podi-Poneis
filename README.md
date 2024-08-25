@@ -40,4 +40,4 @@ Thanks to Professor Daniel Roberto Cassar for the Machine Learning course.
 
 ## Observations
 
-This was a group project, and this is my edited version. I only translated the notebook to english and changed some minor things. If you're interested in seeing the original project, just check the link int the top of this fork.
+This was a group project, and this is my edited version. I only translated the notebook to english and changed some minor things. If you're interested in seeing the original project, just check the link in the top of this fork.
